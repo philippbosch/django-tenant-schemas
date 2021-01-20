@@ -6,6 +6,7 @@ from tenant_schemas.management.commands import InteractiveTenantOption
 
 
 class Command(InteractiveTenantOption, BaseCommand):
+    requires_system_checks = []
     help = "Wrapper around django commands for use with an individual tenant"
 
     def run_from_argv(self, argv):
@@ -30,10 +31,14 @@ class Command(InteractiveTenantOption, BaseCommand):
         # and forward the rest of the arguments to the actual command being wrapped.
         del argv[1]
         schema_parser = argparse.ArgumentParser()
-        schema_parser.add_argument("-s", "--schema", dest="schema_name", help="specify tenant schema")
+        schema_parser.add_argument(
+            "-s", "--schema", dest="schema_name", help="specify tenant schema"
+        )
         schema_namespace, args = schema_parser.parse_known_args(argv)
 
-        tenant = self.get_tenant_from_options_or_interactive(schema_name=schema_namespace.schema_name)
+        tenant = self.get_tenant_from_options_or_interactive(
+            schema_name=schema_namespace.schema_name
+        )
         connection.set_tenant(tenant)
         klass.run_from_argv(args)
 
